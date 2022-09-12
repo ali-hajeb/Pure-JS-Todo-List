@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Todo List App</title>
+  </head>
+  <body>
+    <div class="modal">
+      <section id="task-input-section" class="task-input modal-dialogue">
+        <h2 class="task-input--title">Edit task</h2>
+        <form id="task-edit-form">
+          <div class="input-group">
+            <label for="task-title--edit">Title</label>
+            <input
+              type="text"
+              name="title"
+              id="task-title--edit"
+              class="input input-text"
+              placeholder="ex. Meeting" />
+          </div>
+          <div class="input-group">
+            <label for="task-desc--edit">Description</label>
+            <textarea id="task-desc--edit" class="input input-text task-desc">
+            </textarea>
+          </div>
+          <div class="modal-dialogue-buttons">
+            <input type="submit" class="button button--primary" value="Edit" />
+            <button
+              type="button"
+              id="modal-dialogue--cancel"
+              class="button button--secondary">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <header id="app-header">
+      <h1>Todo List</h1>
+    </header>
+    <main>
+      <section id="task-input-section" class="task-input">
+        <h2 class="task-input--title">New task</h2>
+        <form id="task-form">
+          <div class="input-group">
+            <label for="task-title">Title</label>
+            <input
+              type="text"
+              name="title"
+              id="task-title"
+              class="input input-text"
+              placeholder="E.g. Meeting" />
+          </div>
+          <div class="input-group">
+            <label for="task-desc">Description</label>
+            <textarea id="task-desc" class="input input-text task-desc"></textarea>
+          </div>
+          <input
+            type="submit"
+            class="button button--primary w-100"
+            value="Add to list" />
+        </form>
+      </section>
+      <section id="tasks-section">
+        <h2>Todo</h2>
+        <div id="tasks-grid"></div>
+      </section>
+    </main>
+    <script src="./script.js" type="application/javascript"></script>
+  </body>
+</html>
