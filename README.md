@@ -1,5 +1,5 @@
 # Pure-JS-Todo-List
-A simple todo list build by pure JS, HTML and CSS.
+A simple todo list built by pure JS, HTML and CSS.
 
 ## Usage
 After cloning the repository, open index.html.
