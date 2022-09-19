@@ -207,17 +207,64 @@ main {
 
 .modal.show {
   opacity: 1;
-  z-index: 99;
+  z-index: 98;
 }
 
 .modal-dialogue {
   max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-dialogue-buttons {
   display: flex;
   flex-direction: row-reverse;
   gap: 10px;
+}
+
+.alerts-section {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 500px;
+  z-index: 100;
+}
+
+.alert {
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  width: 100%;
+  animation: alertAnimation 3s ease-in-out;
+}
+
+.alert.green {
+  background-color: #5cb85c;
+}
+
+.alert.red {
+  background-color: #d9534f;
+}
+
+@keyframes alertAnimation {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @media (min-width: 576px) {

@@ -1,10 +1,10 @@
-const todoList = [
-  {
-    title: 'Test',
-    desc: 'This is a test.',
-    isCompleted: false
-  }
-];
+// const todoList = [
+//   {
+//     title: 'Test',
+//     desc: 'This is a test.',
+//     isCompleted: false
+//   }
+// ];
 
 // Elements
 const taskForm = document.querySelector('#task-form');
@@ -17,15 +17,68 @@ const tasksGrid = document.querySelector('#tasks-grid');
 const modal = document.querySelector('.modal');
 const modalDialogue = document.querySelector('.modal-dialogue');
 const modalDialogueCancelButton = document.querySelector('#modal-dialogue--cancel');
+const alertsSection = document.querySelector('.alerts-section');
 
 // UI Functions
+// Create an alert element
+const createAlert = (icon, message, className) => {
+  const alertBox = document.createElement('div');
+  alertBox.classList.add('alert', className);
+  alertBox.innerHTML = `
+    <div class="alert-icon">
+      <i class="bi-${icon}"></i>
+    </div>
+    <div class="alert-message">
+      ${message}
+    </div>
+  `;
+  return alertBox;
+}
+
+// View alert element and set a timer to delete alert after 3s 
+const viewAlert = (alertBox) => {
+  alertsSection.appendChild(alertBox);
+  setTimeout(() => {
+    alertBox.remove();
+  }, 3000);
+}
+
+// Toggle modal visibility status
 const modalToggler = () => {
   modal.classList.toggle('show');
 }
 
+const handleDeleteTask = (e) => {
+  const [id] = getTaskIdAndCard(e.target);
+  deleteTask(id);
+  viewAlert(createAlert('trash', 'Task deleted successfully!', 'green'));
+}
+
+const handleEditTask = (e) => {
+  const [id] = getTaskIdAndCard(e.target);
+  editTask(id);
+}
+
+const handleStatusChange = (e) => {
+  const [id, taskCard] = getTaskIdAndCard(e.target);
+  changeTaskStatus(e.target, taskCard, id);
+  viewAlert(createAlert('exclamation-circle', 'Task status changed successfully!', 'green'));
+}
+
 // Task List Functions
+// Return todo list
+const getTodoList = () => {
+  const todoList = JSON.parse(localStorage.getItem('todo-list'));
+  return todoList || [];
+}
+
+// Save todo list
+const saveTodoList = (todoList) => {
+  localStorage.setItem('todo-list', JSON.stringify(todoList));
+}
+
 // Re-render todo list 
-const loadList = () => {
+const renderList = (todoList) => {
   // Remove all cards
   tasksGrid.innerHTML = '';
 
@@ -33,32 +86,42 @@ const loadList = () => {
   todoList.forEach((task, index) => {
     tasksGrid.appendChild(createCard(task.title, task.desc, task.isCompleted, index));
   });
+
+  saveTodoList(todoList);
 };
 
 // Add a new task to todo list
 const addTask = (title, desc) => {
   if (title && desc) {
-    todoList.push({ title, desc, isCompleted: false });
-    loadList();
+    const updatedTodoList = [...getTodoList(), { title, desc, isCompleted: false }];
+
+    renderList(updatedTodoList);
+    viewAlert(createAlert('check-square', 'Task added to list successfully!', 'green'));
+  } else {
+    viewAlert(createAlert('exclamation-circle', 'Task Inputs cannot be empty!', 'red'));
   }
 };
 
-// Delete task
-const deleteTask = (e) => {
+// Find task id And task card by event target element
+const getTaskIdAndCard = (eventTarget) => {
   // Find task id
-  const taskCard = e.target.closest('.todo-card');
+  const taskCard = eventTarget.closest('.todo-card');
   const id = taskCard.getAttribute('data-id');
+  return [id, taskCard];
+}
 
+// Delete task
+const deleteTask = (id) => {
+  const todoList = getTodoList();
   // Delete task from the todoList array
-  todoList.splice(id, 1);
-  loadList();
+  const updatedTodoList = todoList.filter((_, taskId) => taskId !== Number(id));
+
+  renderList(updatedTodoList);
 };
 
 // Edit task
-const editTask = (e) => {
-  // Find task id
-  const taskCard = e.target.closest('.todo-card');
-  const id = taskCard.getAttribute('data-id');
+const editTask = (id) => {
+  const todoList = getTodoList();
 
   // Show modal dialogue
   modalToggler();
@@ -72,20 +135,17 @@ const editTask = (e) => {
 };
 
 // Change task status
-const changeTaskStatus = (e) => {
-  // Get checkBox status
-  const target = e.target;
-  const { checked } = target.dataset;
+const changeTaskStatus = (checkBox, taskCard, id) => {
+  const todoList = getTodoList();
 
-  // Find task id
-  const taskCard = target.closest('.todo-card');
-  const id = taskCard.getAttribute('data-id');
+  // Get checkBox status
+  const { checked } = checkBox.dataset;
 
   // Change checkbox status & task card style
   if (checked) {
-    target.classList.remove('bi-check-square-fill');
-    target.classList.add('bi-square');
-    target.removeAttribute('data-checked');
+    checkBox.classList.remove('bi-check-square-fill');
+    checkBox.classList.add('bi-square');
+    checkBox.removeAttribute('data-checked');
 
     // Change card style
     taskCard.classList.remove('done');
@@ -93,9 +153,9 @@ const changeTaskStatus = (e) => {
     // Update todoList array
     todoList[id].isCompleted = false;
   } else {
-    target.classList.remove('bi-square');
-    target.classList.add('bi-check-square-fill');
-    target.setAttribute('data-checked', 'true');
+    checkBox.classList.remove('bi-square');
+    checkBox.classList.add('bi-check-square-fill');
+    checkBox.setAttribute('data-checked', 'true');
 
     // Change card style
     taskCard.classList.add('done');
@@ -103,6 +163,8 @@ const changeTaskStatus = (e) => {
     // Update todoList array
     todoList[id].isCompleted = true;
   }
+
+  renderList(todoList);
 };
 
 // Task Card Functions
@@ -140,29 +202,43 @@ const createCard = (title, desc, isCompleted, id) => {
     `;
 
   // Bind functions to the card buttons
-  card.querySelector('.btn-check').onclick = changeTaskStatus;
-  card.querySelector('.btn-edit').onclick = editTask;
-  card.querySelector('.btn-delete').onclick = deleteTask;
+  card.querySelector('.btn-check').onclick = handleStatusChange;
+  card.querySelector('.btn-edit').onclick = handleEditTask;
+  card.querySelector('.btn-delete').onclick = handleDeleteTask;
   return card;
 };
 
 // Event Listeners
-document.body.onload = loadList;
+// Get todo list data and render it after dom content loaded
+window.addEventListener('DOMContentLoaded', (e) => {
+  const todoList = getTodoList();
+  renderList(todoList);
+});
 
+// Submit a new task
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
   addTask(taskTitle.value, taskDesc.value);
 });
 
+// Edit a task
 taskForm_edit.addEventListener('submit', (e) => {
   e.preventDefault();
-  const { id } = e.target.dataset;
-  todoList[id] = { ...todoList[id], title: taskTitle_edit.value, desc: taskDesc_edit.value };
-  e.target.removeAttribute('data-id');
-  modalToggler();
-  loadList();
+  if (taskTitle_edit.value && taskDesc_edit.value) {
+    const { id } = e.target.dataset;
+    const todoList = getTodoList();
+    todoList[id] = { ...todoList[id], title: taskTitle_edit.value, desc: taskDesc_edit.value };
+    e.target.removeAttribute('data-id');
+    modalToggler();
+    renderList(todoList);
+    viewAlert(createAlert('pencil', 'Task updated successfully!', 'green'));
+  } else {
+    viewAlert(createAlert('exclamation-circle', 'Task Inputs cannot be empty!', 'red'));
+  }
+
 })
 
+// Toggle modal visibility status by clicking on it 
 modal.addEventListener('click', modalToggler);
 
 modalDialogue.addEventListener('click', (e) => e.stopPropagation());
